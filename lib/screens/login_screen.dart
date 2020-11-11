@@ -1,16 +1,45 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nilecrm/screens/image_banner.dart';
+import 'package:nilecrm/models/user.dart';
 import '../utilities/constants.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
+// Create post request for creating user
+Future<User> createUser(String email, String password) async {
+  final String apiUrl = "http://test.nilecrm.com/api/v1/auth/login";
+
+  // Setup the response
+  final http.Response response = await http.post(apiUrl,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        "email": email,
+        "password": password,
+      }));
+
+  if (response.statusCode == 201) {
+    final String responseString = response.body;
+    return userFromJson(responseString);
+  } else {
+    return null;
+  }
+}
+
 class _LoginScreenState extends State<LoginScreen> {
+  User _user;
+  // Controller for user inputs
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-
+  // Email field
   Widget _buildEmailTF() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
+            controller: emailController,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(
               color: Colors.white,
@@ -46,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+//  // Password field
   Widget _buildPasswordTF() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
+            controller: passwordController,
             obscureText: true,
             style: TextStyle(
               color: Colors.white,
@@ -81,16 +113,22 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
-
-
+  // Login Button
   Widget _buildLoginBtn() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 25.0),
       width: double.infinity,
       child: RaisedButton(
         elevation: 5.0,
-        onPressed: () => print('Login Button Pressed'),
+        onPressed: () async {
+          final String email = emailController.text;
+          final String password = passwordController.text;
+
+          final User user = await createUser(email, password);
+          setState(() {
+            _user = user;
+          });
+        },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -110,34 +148,17 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blueGrey,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Stack(
             children: <Widget>[
-              Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFF73AEF5),
-                      Color(0xFF61A4F1),
-                      Color(0xFF478DE0),
-                      Color(0xFF398AE5),
-                    ],
-                    stops: [0.1, 0.4, 0.7, 0.9],
-                  ),
-                ),
-              ),
+//
               Container(
                 height: double.infinity,
                 child: SingleChildScrollView(
@@ -149,14 +170,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      ImageBanner("assets/images/logo3.jpg"),
+                      Image(image: AssetImage('assets/images/logo3.jpg')),
                       SizedBox(height: 30.0),
-                      _buildEmailTF(),
+//                      _buildEmailTF(),
                       SizedBox(
                         height: 30.0,
                       ),
+                      _buildEmailTF(),
                       _buildPasswordTF(),
                       _buildLoginBtn(),
+
+                      _user == null
+                          ? Container(
+                              child: Text(' request is not completed'),
+                            )
+                          : Text(
+                              "The user ${_user.email} is created successfully at time ${_user.createdAt.toIso8601String()}"),
                     ],
                   ),
                 ),
