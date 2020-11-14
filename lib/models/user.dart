@@ -39,3 +39,15 @@ class User {
         "createdAt": createdAt.toIso8601String(),
       };
 }
+
+User loginUser(String jsonData, email, password) {
+  final data = json.decode(jsonData)['data']['meta'];
+   return User(
+      email: email,
+      password: password,
+      id: "",
+      token: data['token'],
+      createdAt: null,
+    );
+
+}

@@ -17,17 +17,18 @@ Future<User> createUser(String email, String password) async {
 
   // Setup the response
   final http.Response response = await http.post(apiUrl,
-      headers: <String, String>{
+    /*  headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-      },
+      },*/
+      headers: {"content-type": "application/json"},
       body: jsonEncode(<String, String>{
         "email": email,
         "password": password,
       }));
 
-  if (response.statusCode == 201) {
+  if (response.statusCode == 200) {
     final String responseString = response.body;
-    return userFromJson(responseString);
+    return loginUser(responseString, email, password);
   } else {
     return null;
   }
@@ -57,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontFamily: 'OpenSans',
             ),
             decoration: InputDecoration(
@@ -65,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
               contentPadding: EdgeInsets.only(top: 14.0),
               prefixIcon: Icon(
                 Icons.email,
-                color: Colors.white,
+                color: Color(0xFF404040),
               ),
               hintText: 'Enter your Email',
               hintStyle: kHintTextStyle,
@@ -94,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: passwordController,
             obscureText: true,
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontFamily: 'OpenSans',
             ),
             decoration: InputDecoration(
@@ -102,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
               contentPadding: EdgeInsets.only(top: 14.0),
               prefixIcon: Icon(
                 Icons.lock,
-                color: Colors.white,
+                color: Color(0xFF404040),
               ),
               hintText: 'Enter your Password',
               hintStyle: kHintTextStyle,
@@ -133,11 +134,11 @@ class _LoginScreenState extends State<LoginScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        color: Colors.white,
+        color: Color(0xFF404040),
         child: Text(
           'LOGIN',
           style: TextStyle(
-            color: Color(0xFF527DAA),
+            color: Color(0xFFffffff),
             letterSpacing: 1.5,
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
@@ -163,29 +164,42 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: double.infinity,
                 child: SingleChildScrollView(
                   physics: AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
+                  /*padding: EdgeInsets.symmetric(
                     horizontal: 40.0,
                     vertical: 120.0,
-                  ),
+                  ),*/
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Image(image: AssetImage('assets/images/logo3.jpg')),
-                      SizedBox(height: 30.0),
-//                      _buildEmailTF(),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      _buildEmailTF(),
-                      _buildPasswordTF(),
-                      _buildLoginBtn(),
 
-                      _user == null
-                          ? Container(
-                              child: Text(' request is not completed'),
-                            )
-                          : Text(
-                              "The user ${_user.email} is created successfully at time ${_user.createdAt.toIso8601String()}"),
+                      Container(
+                        color: Color(0xFF3c8dbc),
+
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 40.0,
+                            vertical: 30.0,
+                          ),
+                          child: Column(
+                            children: [
+                              _buildEmailTF(),
+                              SizedBox( height: 30,),
+                              _buildPasswordTF(),
+                              _buildLoginBtn(),
+
+                              _user == null
+                                  ? Container(
+                                child: Text(' request is not completed'),
+                              )
+                                  : Text(
+                                  "The user ${_user.email} is created successfully  "),    //${_user.createdAt.toIso8601String()}
+                            ],
+
+                          ),
+                        ),
+                      ),
+
                     ],
                   ),
                 ),
