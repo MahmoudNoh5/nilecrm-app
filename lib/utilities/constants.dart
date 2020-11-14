@@ -22,3 +22,8 @@ final kBoxDecorationStyle = BoxDecoration(
     ),
   ],
 );
+
+String websiteLink = "http://test.nilecrm.com";
+String websiteApiLink = "http://test.nilecrm.com/api/v1/";
+
+String websiteApiLocalLink = "http://10.0.2.2:8000/api/v1/";
